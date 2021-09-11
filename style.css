@@ -1,0 +1,22 @@
+.user-box, .login-box {
+    display: none;
+}
+
+.teamData {
+    position: relative;
+    border: 2px solid olive;
+    padding: 20px;
+    margin: 50px;
+}
+
+.admin, .member {
+    position: absolute;
+    right: 10px;
+}
+
+input {
+    margin-right: 20px;
+}
+p{
+    margin: 0;
+}
