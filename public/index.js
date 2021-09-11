@@ -7,6 +7,7 @@ firebase.auth().onAuthStateChanged((user) => {
         showTeams();
         showTeams2();
         showMsgs();
+        showMembers();
     } else {
         document.getElementById("loginBox").style.display = "block";
         document.getElementById("userBox").style.display = "none";
@@ -54,7 +55,8 @@ function createTeam(user) {
                 teamName
             })
                 .then(() => {
-                    alert("team created")
+                    alert("team created");
+                    location.reload();
                 })
                 .catch((error) => {
                     console.error("Error adding document: ", error);
@@ -75,18 +77,23 @@ function showTeams() {
 }
 
 function elementForTeams(doc, id) {
+    var teamname = doc.data().teamName;
     var mainDiv = document.getElementById("teams");
     var teamDivs = document.createElement("div");
     teamDivs.classList.add("teamData");
+    var form = document.createElement("form");
     var input = document.createElement("input");
     var input2 = document.createElement("input");
     input2.setAttribute("type", "hidden");
+    var input3 = document.createElement("input");
+    input3.setAttribute("type", "button");
+    input3.setAttribute("value", "Add member");
+    input3.setAttribute("onclick", `add(${teamname})`);
     input2.setAttribute("value", doc.data().teamName);
     input2.setAttribute("id", doc.data().teamName);
     input2.classList.add("msgTeam");
-    var form = document.createElement("form");
     form.setAttribute("id", "form");
-    form.setAttribute("onsubmit", "return false")
+    form.setAttribute("onsubmit", "return false");
     var btn = document.createElement("button");
     btn.setAttribute("type", "submit");
     btn.setAttribute("id", id)
@@ -99,41 +106,71 @@ function elementForTeams(doc, id) {
     form.appendChild(input);
     form.appendChild(btn);
     var teamHeading = document.createElement("h3");
+    var memHeading = document.createElement("h3");
+    var members = document.createElement("span");
+    members.classList.add("members");
+    members.textContent = " Members: "
     teamHeading.classList.add("teamHeading");
-    var memberDetails = document.createElement("p");
     var span = document.createElement("span");
     span.classList.add("admin");
     span.innerText = "admin"
-    memberDetails.classList.add("member-details")
-    teamDivs.appendChild(memberDetails);
     teamHeading.textContent = doc.data().teamName;
+    memHeading.appendChild(members)
     teamDivs.appendChild(span);
+    teamDivs.appendChild(input3);
     teamDivs.appendChild(teamHeading);
-    teamDivs.appendChild(form)
+    teamDivs.appendChild(memHeading);
+    teamDivs.appendChild(form);
     mainDiv.appendChild(teamDivs);
 }
 
-function add() {
+function add(teamname) {
+    var teamName = teamname.value;
     const user = firebase.auth().currentUser;
-    var teamName = document.getElementById("nameOfTeam").value;
-    var memberName = document.getElementById("nameOfMember").value;
-    var docRef = db.collection('users').doc(user.email).collection('teams').doc(teamName).collection("members").doc(memberName);
-    docRef.set(
-        {
-            memberName
-        }
-    )
-    db.collection("users/" + memberName + "/" + "member").doc(teamName).set(
-        {
-            teamName
-        }
-    )
-        .then(() => {
-            alert("member added")
-        })
-        .catch((error) => {
-            console.error("Error adding document: ", error);
+    var memberName = prompt("Enter name of member");
+    // var memberName = document.getElementById("nameOfMember").value;
+    var emails = [];
+    var emailExists = false;
+    db.collection("users").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            emails.push(doc.id)
         });
+        for (var i = 0; i < emails.length; i++) {
+            if (memberName == emails[i]) {
+                emailExists = true;
+                break;
+            }
+        }
+        if (emailExists) {
+            if (memberName != user.email) {
+                var docRef = db.collection('users').doc(user.email).collection('teams').doc(teamName).collection("members").doc(memberName);
+                docRef.set(
+                    {
+                        memberName
+                    }
+                )
+                db.collection("users/" + memberName + "/" + "member").doc(teamName).set(
+                    {
+                        teamName
+                    }
+                )
+                    .then(() => {
+                        alert("member added")
+                        location.reload()
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                    });
+            }
+            else {
+                alert("You are admin")
+            }
+        }
+        else {
+            alert("User with that email does not exist");
+        }
+    });
+
 }
 
 function showTeams2() {
@@ -173,12 +210,9 @@ function elementForTeams2(doc, id) {
     form.appendChild(btn);
     var teamHeading = document.createElement("h3");
     teamHeading.classList.add("teamHeading");
-    var memberDetails = document.createElement("p");
     var span = document.createElement("span");
     span.classList.add("member");
-    span.innerText = "member"
-    memberDetails.classList.add("member-details")
-    teamDivs.appendChild(memberDetails);
+    span.innerText = "member";
     teamHeading.textContent = doc.data().teamName;
     teamDivs.appendChild(span);
     teamDivs.appendChild(teamHeading);
@@ -213,6 +247,7 @@ function elementForReplies(doc, teamName) {
     msg.classList.add("msg");
     msg.innerHTML = doc.data().question;
     var sender = document.createElement("span");
+    sender.classList.add("senderName")
     if (doc.data().sender == user.email) {
         sender.innerHTML = " -You";
     }
@@ -236,13 +271,46 @@ function reply(id) {
         sender: user.email
     })
         .then(() => {
-            alert("Document successfully written!");
+            alert("Message has been sent!");
+            location.reload();
         })
         .catch((error) => {
             console.error("Error writing document: ", error);
         });
 }
 
+function showMembers() {
+    const user = firebase.auth().currentUser;
+    var admin = [];
+    var docRef = db.collection("users/" + user.email + "/teams");
+    docRef.get()
+        .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                admin.push(doc.id);
+            })
+            var j = -1
+            for (var i = 0; i < admin.length; i++) {
+                var docRef2 = db.collection("users/" + user.email + "/teams/" + admin[i] + "/members");
+                docRef2.get()
+                    .then((querySnapshot) => {
+                        j++
+                        querySnapshot.forEach((doc) => {
+                            elementForMembers(doc, j);
+                        })
+                    }).catch((error) => {
+                        console.log("Error getting document:", error);
+                    });
+            }
+        }).catch((error) => {
+            console.log("Error getting document:", error);
+        });
+
+}
+
+function elementForMembers(doc, l) {
+    var members = document.getElementsByClassName("members")[l];
+    members.textContent += doc.id + ", "
+}
 
 function signup() {
     var email = document.getElementById("username").value;

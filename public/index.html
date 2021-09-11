@@ -66,27 +66,21 @@
         <button type="button" onclick="logout()">
             LogOut
         </button>
-        <input placeholder="Enter team name" type="text" id="nameOfTeam">
-        <input type="text" id="nameOfMember" placeholder="Enter member email">
-        <button type="button" onclick="add()">
-            add
-        </button>
     </div>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script>
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         var firebaseConfig = {
-            apiKey: "AIzaSyAh1AJq7NJHXbX1xq5Uf4g5p0HhkFVN31o",
-            authDomain: "firstproject-7a126.firebaseapp.com",
-            databaseURL: "https://firstproject-7a126-default-rtdb.firebaseio.com",
-            projectId: "firstproject-7a126",
-            storageBucket: "firstproject-7a126.appspot.com",
-            messagingSenderId: "827727726100",
-            appId: "1:827727726100:web:2c4e7762d63d75814d4901",
-            measurementId: "G-3X18KJDFFE"
+            apiKey: "AIzaSyAWSA3STlapa5vPxZmMHDWnffgnqjan2EY",
+            authDomain: "teamreporter-b2281.firebaseapp.com",
+            projectId: "teamreporter-b2281",
+            storageBucket: "teamreporter-b2281.appspot.com",
+            messagingSenderId: "869704958476",
+            appId: "1:869704958476:web:fb8862e019e0f37d12e429",
+            measurementId: "G-XK5M67V0QE"
+           
         };
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore();

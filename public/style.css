@@ -17,6 +17,13 @@
 input {
     margin-right: 20px;
 }
-p{
+p,h3{
     margin: 0;
+}
+.senderName{
+    font-weight: bold;
+    font-size: 13px;
+}
+.members{
+    font-size: 13px;
 }
